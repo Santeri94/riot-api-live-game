@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>Account</title>
+  </head>
+  <body>
+    <nav>
+      <ul class="nav-menu">
+        <li><a href="index.html">Summoner Search</a></li>
+        <li><a href="livegame.html">Live game</a></li>
+      </ul>
+    </nav>
+    <div>
+      <input id="summoner-name" type="text" />
+      <button id="search-button" onclick="searchSummoner()">Search</button>
+      <div>
+        <h1 id="summoner-name"></h1>
+        <p>Wins: <span id="summoner-wins"></span></p>
+        <p>Losses: <span id="summoner-losses"></span></p>
+        <p>Win Rate: <span id="winrate"></span></p>
+        <p>Rank: <span id="rank"></span></p>
+      </div>
+      <h1></h1>
+    </div>
+
+    <script>
+      const api_key = "RGAPI-45f468fd-5b29-44c5-a6fe-9c2a6724f611";
+      const region = "euw1";
+
+      function searchSummoner() {
+        let summonerName = document.getElementById("summoner-name");
+        let name = summonerName.value;
+        let summonerId;
+        let summonerData;
+        let wins;
+        let losses;
+        let rank;
+        fetch(
+          `https://${region}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${name}?api_key=${api_key}`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            summonerId = data.id;
+            let summonerNameElement = document.querySelector("h1");
+            summonerNameElement.innerText = data.name;
+            console.log(summonerId);
+            console.log(data.name);
+
+            return fetch(
+              `https://${region}.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerId}?api_key=${api_key}`
+            );
+          })
+          .then((response) => response.json())
+          .then((data) => {
+            summonerData = data;
+            wins = data[0].wins;
+            losses = data[0].losses;
+            rank = data[0].tier + " " + data[0].rank;
+            let summonerWinsElement = document.getElementById("summoner-wins");
+            summonerWinsElement.innerText = wins;
+
+            let summonerLossesElement =
+              document.getElementById("summoner-losses");
+            summonerLossesElement.innerText = losses;
+
+            let winRate = ((wins / (wins + losses)) * 100).toFixed(1);
+            let summonersWRelement = document.getElementById("winrate");
+            summonersWRelement.innerText = winRate + "%";
+
+            let summonersRankElement = document.getElementById("rank");
+            summonersRankElement.innerText = rank;
+            console.log(winRate);
+            console.log(summonerData);
+
+            let version = "11.6.1"; // this is the current version of the game
+            let championData;
+
+            fetch(
+              `http://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/champion.json`
+            )
+              .then((response) => response.json())
+              .then((data) => {
+                championData = data.data;
+                console.log(championData); // should display an object containing data for all champions
+              })
+              .catch((error) => console.log(error));
+          });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,28 @@
+.nav-menu {
+    list-style-type: none;
+    margin: 10;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+  }
+  .nav-menu li {
+    float: left;
+  }
+  .nav-menu li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+  }
+  .nav-menu li a:hover {
+    background-color: #111;
+  }
+
+  #blue-team li {
+    list-style: none; /* remove bullets or numbers */
+  }
+
+  #red-team li {
+    list-style: none; /* remove bullets or numbers */
+  }

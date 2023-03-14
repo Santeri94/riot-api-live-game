@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>Live game</title>
+  </head>
+  <body>
+    <nav>
+      <ul class="nav-menu">
+        <li><a href="index.html">Summoner Search</a></li>
+        <li><a href="livegame.html">Live game</a></li>
+      </ul>
+    </nav>
+    <div>
+      <input id="game-search" type="text" placeholder="search game" />
+      <button id="searchGame-button" onclick="searchGame()">Search</button>
+    </div>
+    <div><h1 id="gameName"></h1></div>
+    <p><span id="game-mode"></span></p>
+    <div id="blue-team"></div>
+    <div id="red-team"></div>
+
+    <script>
+      const api_key = "RGAPI-45f468fd-5b29-44c5-a6fe-9c2a6724f611";
+      const region = "euw1";
+      function searchGame() {
+        let gameName = document.getElementById("game-search");
+        let name = gameName.value;
+        let gameId;
+        let gameData;
+        let bannedChamps;
+        let bannedChampIds;
+        let gameMode;
+        let redTeam = [];
+        let blueTeam = [];
+        fetch(
+          `https://${region}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${name}?api_key=${api_key}`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            gameId = data.id;
+            let summonerGameElement = document.querySelector("h1");
+            summonerGameElement.innerText = data.name + "'s" + " Live game";
+
+            return fetch(
+              ` https://${region}.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/${gameId}?api_key=${api_key}`
+            );
+          })
+          .then((response) => response.json())
+          .then((data) => {
+            gameData = data;
+            bannedChamps = gameData.bannedChampions;
+            console.log(gameData);
+            console.log(gameData.mapId);
+            gameMode = gameData.gameQueueConfigId;
+            if (gameMode === 420) {
+              let gameModeElement = document.getElementById("game-mode");
+              gameModeElement.innerText = "Ranked Solo/Duo";
+            } else if (gameMode === 440) {
+              let gameModeElement = document.getElementById("game-mode");
+              gameModeElement.innerText = "Ranked Flex";
+            } else if (gameMode === 450) {
+              let gameModeElement = document.getElementById("game-mode");
+              gameModeElement.innerText = "ARAM";
+            } else if (gameMode === 400) {
+              let gameModeElement = document.getElementById("game-mode");
+              gameModeElement.innerText = "Normal Draft";
+            } else {
+              let gameModeElement = document.getElementById("game-mode");
+              gameModeElement.innerText = "Unknown Game mode";
+            }
+            // bannedChampIds = bannedChamps.map((champ) => champ.championId); // eli uus array = vanha array -> map -> sieltä objecti -> sen property...
+
+            function getChampName(id) {
+              return fetch(
+                `https://ddragon.leagueoflegends.com/cdn/11.3.1/data/en_US/champion.json`
+              )
+                .then((response) => response.json())
+                .then((data) => {
+                  const championName = Object.values(data.data).find(
+                    (champion) => champion.key === id.toString()
+                  ).name; // object.values vaihtaa objectin valuet yhteen arrayhyn
+                  return championName; // sit voidaan käyttää find() siihe arayhy
+                });
+            }
+            gameData.participants.forEach((participant) => {
+              // käydään siis og array läpi ja extractataan "participant"
+              const { teamId, championId, summonerName } = participant; // otetaan participantille vanhasta arraysta tiimiID, playerID ja champID
+              const player = { name: summonerName, championId }; // sit määritetään pelaaja muotoon nimi: champ
+
+              if (teamId === 100) {
+                // jos blueside objecti og arrayssa nii pusketaan bluetiimii pelaaja muodossa
+                blueTeam.push(player);
+              } else {
+                redTeam.push(player);
+              }
+            });
+
+            let blueTeamList = document.createElement("ul"); // TEHÄÄN itse ul elementti
+            blueTeam.forEach((player) => {
+              // sit olemassa oleva bluetiimi array käydään läpi (pelaaja kerrallaa)
+              let playerListItem = document.createElement("li"); // luodaan lista elementti
+              playerListItem.innerText = `${player.name} - ${player.championName}`; // annetaan jokaiselle lista elementille muoto pelaajannimi - champ
+              blueTeamList.appendChild(playerListItem); // lisätää lista elementti ul elementtiin HOX tää siis tehään foreach functiossa eli jokaiselle pelaajalle loopissa
+            });
+            let blueTeamElement = document.getElementById("blue-team");
+            blueTeamElement.appendChild(blueTeamList); // lisätään luotu ul lista html elementtiin
+
+            let redTeamList = document.createElement("ul");
+            redTeam.forEach((player) => {
+              let playerListItem = document.createElement("li");
+              playerListItem.innerText = `${player.name} - ${player.championName}`;
+              redTeamList.appendChild(playerListItem);
+            });
+            let redTeamElement = document.getElementById("red-team");
+            redTeamElement.appendChild(redTeamList);
+          });
+        console.log(blueTeam);
+      } // ens kerralla muuta champID -> champ name, laita listat vierekkäi ja ehkä lisää bannit?
+    </script>
+  </body>
+</html>
