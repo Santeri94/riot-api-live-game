@@ -24,15 +24,13 @@
     <div id="red-team"></div>
 
     <script>
-      const api_key = "RGAPI-45f468fd-5b29-44c5-a6fe-9c2a6724f611";
+      const api_key = "RGAPI-3ea11175-ea19-416a-ae72-75611ecf2054";
       const region = "euw1";
       function searchGame() {
         let gameName = document.getElementById("game-search");
         let name = gameName.value;
         let gameId;
         let gameData;
-        let bannedChamps;
-        let bannedChampIds;
         let gameMode;
         let redTeam = [];
         let blueTeam = [];
@@ -52,7 +50,6 @@
           .then((response) => response.json())
           .then((data) => {
             gameData = data;
-            bannedChamps = gameData.bannedChampions;
             console.log(gameData);
             console.log(gameData.mapId);
             gameMode = gameData.gameQueueConfigId;
@@ -72,24 +69,11 @@
               let gameModeElement = document.getElementById("game-mode");
               gameModeElement.innerText = "Unknown Game mode";
             }
-            // bannedChampIds = bannedChamps.map((champ) => champ.championId); // eli uus array = vanha array -> map -> sieltä objecti -> sen property...
 
-            function getChampName(id) {
-              return fetch(
-                `https://ddragon.leagueoflegends.com/cdn/11.3.1/data/en_US/champion.json`
-              )
-                .then((response) => response.json())
-                .then((data) => {
-                  const championName = Object.values(data.data).find(
-                    (champion) => champion.key === id.toString()
-                  ).name; // object.values vaihtaa objectin valuet yhteen arrayhyn
-                  return championName; // sit voidaan käyttää find() siihe arayhy
-                });
-            }
             gameData.participants.forEach((participant) => {
               // käydään siis og array läpi ja extractataan "participant"
-              const { teamId, championId, summonerName } = participant; // otetaan participantille vanhasta arraysta tiimiID, playerID ja champID
-              const player = { name: summonerName, championId }; // sit määritetään pelaaja muotoon nimi: champ
+              const { teamId, summonerName } = participant; // otetaan participantille vanhasta arraysta tiimiID, playerID ja champID
+              const player = { name: summonerName }; // sit määritetään pelaaja muotoon nimi: champ
 
               if (teamId === 100) {
                 // jos blueside objecti og arrayssa nii pusketaan bluetiimii pelaaja muodossa
@@ -103,7 +87,7 @@
             blueTeam.forEach((player) => {
               // sit olemassa oleva bluetiimi array käydään läpi (pelaaja kerrallaa)
               let playerListItem = document.createElement("li"); // luodaan lista elementti
-              playerListItem.innerText = `${player.name} - ${player.championName}`; // annetaan jokaiselle lista elementille muoto pelaajannimi - champ
+              playerListItem.innerText = `${player.name}`; // annetaan jokaiselle lista elementille muoto pelaajannimi - champ
               blueTeamList.appendChild(playerListItem); // lisätää lista elementti ul elementtiin HOX tää siis tehään foreach functiossa eli jokaiselle pelaajalle loopissa
             });
             let blueTeamElement = document.getElementById("blue-team");
@@ -112,14 +96,14 @@
             let redTeamList = document.createElement("ul");
             redTeam.forEach((player) => {
               let playerListItem = document.createElement("li");
-              playerListItem.innerText = `${player.name} - ${player.championName}`;
+              playerListItem.innerText = `${player.name}`;
               redTeamList.appendChild(playerListItem);
             });
             let redTeamElement = document.getElementById("red-team");
             redTeamElement.appendChild(redTeamList);
           });
         console.log(blueTeam);
-      } // ens kerralla muuta champID -> champ name, laita listat vierekkäi ja ehkä lisää bannit?
+      } // ens kerralla muuta laita nimet hienosti esille ja koristele
     </script>
   </body>
 </html>
