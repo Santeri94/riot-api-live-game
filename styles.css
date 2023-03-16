@@ -26,3 +26,29 @@
   #red-team li {
     list-style: none; /* remove bullets or numbers */
   }
+
+  table {
+    border-collapse: collapse;
+    margin: 20px 0;
+    width: 100%;
+  }
+  
+  th, td {
+    border: 1px solid black;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .blue {
+    background-color:rgb(52, 103, 235);
+    font-weight: bold;
+  }
+
+  .red {
+    background-color: rgb(235, 52, 52);
+    font-weight: bold;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }

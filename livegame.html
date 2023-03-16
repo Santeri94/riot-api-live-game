@@ -22,6 +22,7 @@
     <p><span id="game-mode"></span></p>
     <div id="blue-team"></div>
     <div id="red-team"></div>
+    <table id="team-table"></table>
 
     <script>
       const api_key = "RGAPI-3ea11175-ea19-416a-ae72-75611ecf2054";
@@ -70,39 +71,102 @@
               gameModeElement.innerText = "Unknown Game mode";
             }
 
-            gameData.participants.forEach((participant) => {
-              // käydään siis og array läpi ja extractataan "participant"
-              const { teamId, summonerName } = participant; // otetaan participantille vanhasta arraysta tiimiID, playerID ja champID
-              const player = { name: summonerName }; // sit määritetään pelaaja muotoon nimi: champ
+            Promise.all(
+              gameData.participants.map((participant) => {
+                const { summonerId } = participant;
+                return fetch(
+                  `https://${region}.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerId}?api_key=${api_key}`
+                ).then((response) => response.json());
+              })
+            ).then((rankData) => {
+              // Once all the fetch requests have completed, loop through the participants again and push them to the correct team array
+              gameData.participants.forEach((participant, index) => {
+                const { teamId, summonerName } = participant;
+                const rank =
+                  rankData[index][0].tier + " " + rankData[index][0].rank;
+                const player = { name: summonerName, rank: rank };
+                if (teamId === 100) {
+                  blueTeam.push(player);
+                } else {
+                  redTeam.push(player);
+                }
+              });
 
-              if (teamId === 100) {
-                // jos blueside objecti og arrayssa nii pusketaan bluetiimii pelaaja muodossa
-                blueTeam.push(player);
-              } else {
-                redTeam.push(player);
+              console.log(blueTeam);
+              console.log(redTeam);
+              console.log(gameData.participants[0]);
+
+              let blueTeamList = document.createElement("ul"); // TEHÄÄN itse ul elementti
+              blueTeam.forEach((player) => {
+                // sit olemassa oleva bluetiimi array käydään läpi (pelaaja kerrallaa)
+                let playerListItem = document.createElement("li"); // luodaan lista elementti
+                playerListItem.innerText = `${player.name}`; // annetaan jokaiselle lista elementille muoto pelaajannimi - champ
+                blueTeamList.appendChild(playerListItem); // lisätää lista elementti ul elementtiin HOX tää siis tehään foreach functiossa eli jokaiselle pelaajalle loopissa
+              });
+              let blueTeamElement = document.getElementById("blue-team");
+              blueTeamElement.appendChild(blueTeamList); // lisätään luotu ul lista html elementtiin
+
+              let redTeamList = document.createElement("ul");
+              redTeam.forEach((player) => {
+                let playerListItem = document.createElement("li");
+                playerListItem.innerText = `${player.name}`;
+                redTeamList.appendChild(playerListItem);
+              });
+              let redTeamElement = document.getElementById("red-team");
+              redTeamElement.appendChild(redTeamList);
+
+              // Get a reference to the table element
+              let table = document.getElementById("team-table");
+
+              // Create a header row
+              let headerRow = document.createElement("tr");
+
+              // Create header cells for the two teams
+              let blueTeamHeader = document.createElement("th");
+              blueTeamHeader.innerText = "Blue Team";
+              blueTeamHeader.classList.add("blue");
+              headerRow.appendChild(blueTeamHeader);
+
+              let redTeamHeader = document.createElement("th");
+              redTeamHeader.innerText = "Red Team";
+              redTeamHeader.classList.add("red");
+              headerRow.appendChild(redTeamHeader);
+
+              // Add the header row to the table
+              table.appendChild(headerRow);
+
+              // Loop through the players in both teams
+              for (
+                let i = 0;
+                i < Math.max(blueTeam.length, redTeam.length);
+                i++
+              ) {
+                // Create a new row
+                let row = document.createElement("tr");
+
+                // Create cells for the players in the blue team
+                let blueTeamCell = document.createElement("td");
+                if (blueTeam[i]) {
+                  let playerInfo = document.createElement("div");
+                  playerInfo.innerText = `${blueTeam[i].name} (${blueTeam[i].rank})`;
+                  blueTeamCell.appendChild(playerInfo);
+                }
+                row.appendChild(blueTeamCell);
+
+                // Create cells for the players in the red team
+                let redTeamCell = document.createElement("td");
+                if (redTeam[i]) {
+                  let playerInfo = document.createElement("div");
+                  playerInfo.innerText = `${redTeam[i].name} (${redTeam[i].rank})`;
+                  redTeamCell.appendChild(playerInfo);
+                }
+                row.appendChild(redTeamCell);
+
+                // Add the row to the table
+                table.appendChild(row);
               }
             });
-
-            let blueTeamList = document.createElement("ul"); // TEHÄÄN itse ul elementti
-            blueTeam.forEach((player) => {
-              // sit olemassa oleva bluetiimi array käydään läpi (pelaaja kerrallaa)
-              let playerListItem = document.createElement("li"); // luodaan lista elementti
-              playerListItem.innerText = `${player.name}`; // annetaan jokaiselle lista elementille muoto pelaajannimi - champ
-              blueTeamList.appendChild(playerListItem); // lisätää lista elementti ul elementtiin HOX tää siis tehään foreach functiossa eli jokaiselle pelaajalle loopissa
-            });
-            let blueTeamElement = document.getElementById("blue-team");
-            blueTeamElement.appendChild(blueTeamList); // lisätään luotu ul lista html elementtiin
-
-            let redTeamList = document.createElement("ul");
-            redTeam.forEach((player) => {
-              let playerListItem = document.createElement("li");
-              playerListItem.innerText = `${player.name}`;
-              redTeamList.appendChild(playerListItem);
-            });
-            let redTeamElement = document.getElementById("red-team");
-            redTeamElement.appendChild(redTeamList);
           });
-        console.log(blueTeam);
       } // ens kerralla muuta laita nimet hienosti esille ja koristele
     </script>
   </body>
