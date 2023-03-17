@@ -14,18 +14,16 @@
         <li><a href="livegame.html">Live game</a></li>
       </ul>
     </nav>
-    <div>
+    <div class="inputField">
       <input id="game-search" type="text" placeholder="search game" />
       <button id="searchGame-button" onclick="searchGame()">Search</button>
     </div>
     <div><h1 id="gameName"></h1></div>
     <p><span id="game-mode"></span></p>
-    <div id="blue-team"></div>
-    <div id="red-team"></div>
     <table id="team-table"></table>
 
     <script>
-      const api_key = "RGAPI-3ea11175-ea19-416a-ae72-75611ecf2054";
+      const api_key = "RGAPI-4aac898b-d0b2-4e1a-b913-7fe31ddf7f8c";
       const region = "euw1";
       function searchGame() {
         let gameName = document.getElementById("game-search");
@@ -82,9 +80,16 @@
               // Once all the fetch requests have completed, loop through the participants again and push them to the correct team array
               gameData.participants.forEach((participant, index) => {
                 const { teamId, summonerName } = participant;
+                const wins = rankData[index][0].wins;
+                const losses = rankData[index][0].losses;
+                const winRate = ((wins / (wins + losses)) * 100).toFixed(1);
                 const rank =
                   rankData[index][0].tier + " " + rankData[index][0].rank;
-                const player = { name: summonerName, rank: rank };
+                const player = {
+                  name: summonerName,
+                  rank: rank,
+                  winrate: winRate,
+                };
                 if (teamId === 100) {
                   blueTeam.push(player);
                 } else {
@@ -95,25 +100,6 @@
               console.log(blueTeam);
               console.log(redTeam);
               console.log(gameData.participants[0]);
-
-              let blueTeamList = document.createElement("ul"); // TEHÄÄN itse ul elementti
-              blueTeam.forEach((player) => {
-                // sit olemassa oleva bluetiimi array käydään läpi (pelaaja kerrallaa)
-                let playerListItem = document.createElement("li"); // luodaan lista elementti
-                playerListItem.innerText = `${player.name}`; // annetaan jokaiselle lista elementille muoto pelaajannimi - champ
-                blueTeamList.appendChild(playerListItem); // lisätää lista elementti ul elementtiin HOX tää siis tehään foreach functiossa eli jokaiselle pelaajalle loopissa
-              });
-              let blueTeamElement = document.getElementById("blue-team");
-              blueTeamElement.appendChild(blueTeamList); // lisätään luotu ul lista html elementtiin
-
-              let redTeamList = document.createElement("ul");
-              redTeam.forEach((player) => {
-                let playerListItem = document.createElement("li");
-                playerListItem.innerText = `${player.name}`;
-                redTeamList.appendChild(playerListItem);
-              });
-              let redTeamElement = document.getElementById("red-team");
-              redTeamElement.appendChild(redTeamList);
 
               // Get a reference to the table element
               let table = document.getElementById("team-table");
@@ -148,7 +134,7 @@
                 let blueTeamCell = document.createElement("td");
                 if (blueTeam[i]) {
                   let playerInfo = document.createElement("div");
-                  playerInfo.innerText = `${blueTeam[i].name} (${blueTeam[i].rank})`;
+                  playerInfo.innerText = `${blueTeam[i].name} (${blueTeam[i].rank}) Winrate: ${blueTeam[i].winrate}%`;
                   blueTeamCell.appendChild(playerInfo);
                 }
                 row.appendChild(blueTeamCell);
@@ -157,7 +143,7 @@
                 let redTeamCell = document.createElement("td");
                 if (redTeam[i]) {
                   let playerInfo = document.createElement("div");
-                  playerInfo.innerText = `${redTeam[i].name} (${redTeam[i].rank})`;
+                  playerInfo.innerText = `${redTeam[i].name} (${redTeam[i].rank}) Winrate: ${redTeam[i].winrate}%`;
                   redTeamCell.appendChild(playerInfo);
                 }
                 row.appendChild(redTeamCell);
@@ -167,7 +153,7 @@
               }
             });
           });
-      } // ens kerralla muuta laita nimet hienosti esille ja koristele
+      } //koristele summonersearch samaan tyylii ku live game haku ja sit vähä error handling!
     </script>
   </body>
 </html>

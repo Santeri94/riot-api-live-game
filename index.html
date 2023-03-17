@@ -28,7 +28,7 @@
     </div>
 
     <script>
-      const api_key = "RGAPI-3ea11175-ea19-416a-ae72-75611ecf2054";
+      const api_key = "RGAPI-4aac898b-d0b2-4e1a-b913-7fe31ddf7f8c";
       const region = "euw1";
 
       function searchSummoner() {
@@ -57,6 +57,7 @@
           .then((response) => response.json())
           .then((data) => {
             summonerData = data;
+            console.log(summonerData);
             wins = data[0].wins;
             losses = data[0].losses;
             rank = data[0].tier + " " + data[0].rank;
