@@ -14,25 +14,25 @@
         <li><a href="livegame.html">Live game</a></li>
       </ul>
     </nav>
-    <div>
-      <input id="summoner-name" type="text" />
+    <div class="inputField">
+      <input id="player-name" type="text" />
       <button id="search-button" onclick="searchSummoner()">Search</button>
-      <div>
-        <h1 id="summoner-name"></h1>
-        <p>Wins: <span id="summoner-wins"></span></p>
-        <p>Losses: <span id="summoner-losses"></span></p>
-        <p>Win Rate: <span id="winrate"></span></p>
-        <p>Rank: <span id="rank"></span></p>
-      </div>
-      <h1></h1>
+    </div>
+    <div class="player-info">
+      <h1 id="summoner-name"></h1>
+      <p>Wins <span id="summoner-wins"></span></p>
+      <p>Losses <span id="summoner-losses"></span></p>
+      <p>Win Rate <span id="winrate"></span></p>
+      <p>Rank <span id="rank"></span></p>
     </div>
 
     <script>
-      const api_key = "RGAPI-4aac898b-d0b2-4e1a-b913-7fe31ddf7f8c";
+      const api_key = "RGAPI-70243843-55d3-429a-8430-734ce879fdd6";
       const region = "euw1";
+      const errorMessage = "Enter valid summoner name!";
 
       function searchSummoner() {
-        let summonerName = document.getElementById("summoner-name");
+        let summonerName = document.getElementById("player-name");
         let name = summonerName.value;
         let summonerId;
         let summonerData;
@@ -54,6 +54,7 @@
               `https://${region}.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerId}?api_key=${api_key}`
             );
           })
+          .catch((error) => alert(`${errorMessage}`))
           .then((response) => response.json())
           .then((data) => {
             summonerData = data;
